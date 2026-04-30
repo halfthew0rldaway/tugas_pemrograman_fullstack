@@ -1,593 +1,223 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
-
-    <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-        }
-
-        .table th {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .btn-sm {
-            font-size: 0.8rem;
-        }
-
-        .page-item.active .page-link {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .badge-total {
-            background: #e9ecef;
-            color: #495057;
-            font-size: 0.8rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <style>[v-cloak] { display: none; }</style>
 </head>
-
 <body>
 
-<div id="app">
+<div id="app" v-cloak>
 
-    <!-- ===== HALAMAN LOGIN / REGISTER ===== -->
-    <div v-if="!isLoggedIn" class="container" style="max-width: 420px; margin-top: 80px;">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
+    <!-- AUTH PAGE -->
+    <div v-if="!isLoggedIn" class="auth-page">
+        <div class="auth-box">
+            <h1>User Management</h1>
+            <p>Masuk untuk mengakses dashboard</p>
 
-                <h4 class="text-center mb-1">User Management</h4>
-                <p class="text-center text-muted small mb-4">Node.js + MySQL</p>
+            <div class="tab-toggle">
+                <a href="#" :class="{ active: isLogin }" @click.prevent="isLogin = true">Masuk</a>
+                <a href="#" :class="{ active: !isLogin }" @click.prevent="isLogin = false">Daftar</a>
+            </div>
 
-                <!-- Toggle Login / Register -->
-                <ul class="nav nav-tabs mb-4">
-                    <li class="nav-item w-50 text-center">
-                        <a class="nav-link" :class="{ active: isLogin }" href="#" @click.prevent="isLogin = true">Login</a>
-                    </li>
-                    <li class="nav-item w-50 text-center">
-                        <a class="nav-link" :class="{ active: !isLogin }" href="#" @click.prevent="isLogin = false">Register</a>
-                    </li>
-                </ul>
-
-                <!-- FORM LOGIN -->
-                <form v-if="isLogin" @submit.prevent="login">
-                    <div class="mb-3">
-                        <label class="form-label small">Email</label>
-                        <input type="email" class="form-control" v-model="loginForm.email" placeholder="email@example.com" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Password</label>
-                        <input type="password" class="form-control" v-model="loginForm.password" placeholder="Password" required>
-                    </div>
-                    <button class="btn btn-primary w-100" type="submit">Masuk</button>
-                </form>
-
-                <!-- FORM REGISTER -->
-                <form v-else @submit.prevent="saveUser">
-                    <div class="mb-2">
-                        <label class="form-label small">Nama</label>
-                        <input class="form-control" v-model="form.name" placeholder="Nama lengkap" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small">Email</label>
-                        <input type="email" class="form-control" v-model="form.email" placeholder="email@example.com" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small">No HP</label>
-                        <input class="form-control" v-model="form.phone" placeholder="08xxxxxxxxxx" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Password</label>
-                        <input type="password" class="form-control" v-model="form.password" placeholder="Password" required>
-                    </div>
-                    <button class="btn btn-success w-100" type="submit">Daftar</button>
-                </form>
-
-                <!-- Pesan -->
-                <div v-if="loginMessage" class="alert mt-3 mb-0"
-                    :class="loginMessage.includes('berhasil') ? 'alert-success' : 'alert-danger'">
-                    {{ loginMessage }}
+            <!-- Login -->
+            <form v-if="isLogin" @submit.prevent="login">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" v-model="loginForm.email" placeholder="nama@email.com" required>
                 </div>
-                <div v-if="message" class="alert alert-success mt-3 mb-0">{{ message }}</div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" v-model="loginForm.password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;">Masuk</button>
+            </form>
 
+            <!-- Register -->
+            <form v-else @submit.prevent="saveUser">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input v-model="form.name" placeholder="Nama lengkap" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" v-model="form.email" placeholder="nama@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>No. HP</label>
+                    <input v-model="form.phone" placeholder="08xxxxxxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" v-model="form.password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;">Daftar</button>
+            </form>
+
+            <div v-if="loginMessage" class="alert" :class="loginMessage.includes('berhasil') ? 'alert-success' : 'alert-error'">
+                {{ loginMessage }}
             </div>
         </div>
     </div>
 
-
-    <!-- ===== HALAMAN DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <div v-else>
-
         <!-- Navbar -->
-        <nav class="navbar navbar-light bg-white border-bottom px-4">
-            <span class="navbar-brand">&#128101; User Management</span>
-            <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">Halo, Admin</span>
-                <button class="btn btn-outline-danger btn-sm" @click="logout">Logout</button>
+        <nav class="app-nav">
+            <span class="brand">User Management</span>
+            <div class="nav-right">
+                <span class="nav-user">Administrator</span>
+                <button class="btn btn-danger btn-sm" @click="logout">
+                    <i class="bi bi-box-arrow-right"></i> Keluar
+                </button>
             </div>
         </nav>
 
-        <div class="container py-4">
+        <main class="app-main">
 
-            <!-- Chart -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h6 class="mb-3">Distribusi Domain Email</h6>
-                    <canvas id="userChart" style="max-height: 260px;"></canvas>
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-val">{{ totalUsers }}</div>
+                    <div class="stat-label">Total Pengguna</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val">{{ totalPages }}</div>
+                    <div class="stat-label">Total Halaman</div>
                 </div>
             </div>
 
-            <!-- Tabel User -->
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <!-- Chart -->
+            <div class="chart-card">
+                <h3>Distribusi Domain Email</h3>
+                <div style="height: 200px;">
+                    <canvas id="userChart"></canvas>
+                </div>
+            </div>
 
-                    <!-- Header tabel -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="mb-0">Data User</h6>
-                            <span class="badge-total">{{ totalUsers }} data</span>
-                        </div>
-
-                        <!-- Export dropdown -->
-                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                            <select class="form-select form-select-sm" v-model="exportType" style="width: auto;">
-                                <option value="">-- Export --</option>
-                                <option value="csv">Export CSV</option>
-                                <option value="json">Export JSON</option>
-                                <option value="txt">Export TXT</option>
-                            </select>
-                            <button class="btn btn-outline-secondary btn-sm" @click="exportData" :disabled="!exportType">
-                                Unduh
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Search + limit per page -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <input
-                            type="text"
-                            class="form-control form-control-sm"
-                            style="max-width: 260px;"
-                            v-model="search"
-                            placeholder="&#128269; Cari nama, email, atau no hp..."
-                            @input="onSearch"
-                        >
-
-                        <div class="d-flex align-items-center gap-2">
-                            <label class="small text-muted mb-0">Tampilkan</label>
-                            <select class="form-select form-select-sm" v-model="limit" @change="changePage(1)" style="width: 70px;">
+            <!-- Table -->
+            <div class="table-card">
+                <div class="table-toolbar">
+                    <div class="table-toolbar-left">
+                        <input class="search-input" type="text" v-model="search" @input="onSearch" placeholder="Cari nama, email, atau HP...">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="text-muted">Tampilkan</span>
+                            <select class="inline" v-model="limit" @change="changePage(1)">
                                 <option value="5">5</option>
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                             </select>
-                            <label class="small text-muted mb-0">data</label>
+                            <span class="text-muted">baris</span>
                         </div>
                     </div>
-
-                    <!-- Tabel -->
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered align-middle mb-2">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nama</th>
-                                    <th>Email</th>
-                                    <th>No HP</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(user, index) in users" :key="user.id">
-                                    <td class="text-muted small">{{ (page - 1) * limit + index + 1 }}</td>
-                                    <td>{{ user.name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.phone }}</td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm me-1" @click="openEdit(user)">Edit</button>
-                                        <button class="btn btn-danger btn-sm" @click="deleteUser(user.id)">Hapus</button>
-                                    </td>
-                                </tr>
-                                <tr v-if="users.length === 0">
-                                    <td colspan="5" class="text-center text-muted py-4">Tidak ada data ditemukan</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2">
-                        <span class="small text-muted">
-                            Menampilkan {{ users.length }} dari {{ totalUsers }} data
-                        </span>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item" :class="{ disabled: page === 1 }">
-                                    <a class="page-link" href="#" @click.prevent="changePage(page - 1)">&#8592;</a>
-                                </li>
-                                <li class="page-item" v-for="p in totalPages" :key="p" :class="{ active: p === page }">
-                                    <a class="page-link" href="#" @click.prevent="changePage(p)">{{ p }}</a>
-                                </li>
-                                <li class="page-item" :class="{ disabled: page === totalPages || totalPages === 0 }">
-                                    <a class="page-link" href="#" @click.prevent="changePage(page + 1)">&#8594;</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ===== MODAL EDIT USER ===== -->
-        <div class="modal fade" id="editModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit User</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form @submit.prevent="saveUser">
-                            <div class="mb-3">
-                                <label class="form-label small">Nama</label>
-                                <input class="form-control" v-model="form.name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Email</label>
-                                <input type="email" class="form-control" v-model="form.email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">No HP</label>
-                                <input class="form-control" v-model="form.phone" required>
-                            </div>
-                            <button class="btn btn-primary w-100" type="submit">Simpan Perubahan</button>
-                        </form>
-                        <div v-if="message" class="alert alert-success mt-3 mb-0">{{ message }}</div>
+                    <div class="table-toolbar-right">
+                        <select class="inline" v-model="filterType">
+                            <option value="all">Semua Data</option>
+                            <option value="gmail">Hanya Gmail</option>
+                            <option value="other">Selain Gmail</option>
+                        </select>
+                        <select class="inline" v-model="exportType">
+                            <option value="">Pilih Format</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                            <option value="txt">TXT</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" @click="exportData" :disabled="!exportType">
+                            <i class="bi bi-download"></i> Ekstrak
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>No. HP</th>
+                                <th class="actions-col">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(user, index) in users" :key="user.id">
+                                <td class="text-muted">{{ (page - 1) * limit + index + 1 }}</td>
+                                <td class="fw-medium">{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone }}</td>
+                                <td class="actions-col">
+                                    <button class="btn btn-secondary btn-sm" @click="openEdit(user)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" style="margin-left:6px;" @click="deleteUser(user.id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="users.length === 0">
+                                <td colspan="5">
+                                    <div class="empty-state">Tidak ada data ditemukan.</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <span class="text-muted">Menampilkan {{ users.length }} dari {{ totalUsers }} data</span>
+                    <ul class="pagination" v-if="totalPages > 1">
+                        <li :class="{ disabled: page === 1 }">
+                            <a href="#" @click.prevent="changePage(page - 1)"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+                        <li v-for="p in totalPages" :key="p" :class="{ active: p === page }">
+                            <a href="#" @click.prevent="changePage(p)">{{ p }}</a>
+                        </li>
+                        <li :class="{ disabled: page === totalPages }">
+                            <a href="#" @click.prevent="changePage(page + 1)"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-overlay" :class="{ open: showModal }">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Edit Pengguna</h2>
+                <button class="modal-close" @click="showModal = false">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form @submit.prevent="saveUser" id="editForm">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input v-model="form.name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" v-model="form.email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>No. HP</label>
+                        <input v-model="form.phone" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @click="showModal = false">Batal</button>
+                <button class="btn btn-primary" form="editForm" type="submit">Simpan</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- Bootstrap JS (untuk modal) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    const { createApp } = Vue;
-    const BASE_URL = 'http://localhost:3000';
-
-    createApp({
-        data() {
-            return {
-                // Data tabel
-                users: [],
-                allUsers: [],       // semua data untuk chart & export
-                totalUsers: 0,
-                totalPages: 0,
-                page: 1,
-                limit: 5,
-                search: '',
-                searchTimer: null,
-
-                // Form
-                form: { name: '', email: '', phone: '', password: '' },
-                editId: null,
-                message: '',
-
-                // Auth
-                loginForm: { email: '', password: '' },
-                loginMessage: '',
-                isLogin: true,
-                isLoggedIn: false,
-
-                // Export
-                exportType: '',
-
-                // Chart instance
-                chart: null,
-
-                // Modal instance
-                editModal: null
-            };
-        },
-
-        methods: {
-
-            // ===== AUTH =====
-
-            async login() {
-                try {
-                    const res = await fetch(`${BASE_URL}/api/users/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.loginForm)
-                    });
-
-                    const result = await res.json();
-
-                    if (!res.ok) {
-                        this.loginMessage = result.message || 'Login gagal';
-                        return;
-                    }
-
-                    localStorage.setItem('token', result.token);
-                    this.isLoggedIn = true;
-                    this.loginMessage = '';
-
-                    this.$nextTick(() => {
-                        this.editModal = new bootstrap.Modal(document.getElementById('editModal'));
-                        this.getUsers();
-                        this.getAllUsers();
-                    });
-
-                } catch (err) {
-                    this.loginMessage = 'Gagal terhubung ke server';
-                    console.error(err);
-                }
-            },
-
-            logout() {
-                // Hapus token dari localStorage (session logout)
-                localStorage.removeItem('token');
-                this.isLoggedIn = false;
-                this.users = [];
-                this.allUsers = [];
-                this.loginForm = { email: '', password: '' };
-                this.loginMessage = '';
-                this.message = '';
-                if (this.chart) {
-                    this.chart.destroy();
-                    this.chart = null;
-                }
-            },
-
-            // ===== GET DATA =====
-
-            // Ambil data dengan pagination + search
-            async getUsers() {
-                try {
-                    const params = new URLSearchParams({
-                        page: this.page,
-                        limit: this.limit,
-                        search: this.search
-                    });
-
-                    const res = await fetch(`${BASE_URL}/api/users?${params}`);
-                    if (!res.ok) throw new Error('Gagal ambil data');
-
-                    const data = await res.json();
-                    this.users      = data.users;
-                    this.totalUsers = data.total;
-                    this.totalPages = data.totalPages;
-
-                } catch (err) {
-                    console.error(err);
-                }
-            },
-
-            // Ambil semua data untuk chart & export
-            async getAllUsers() {
-                try {
-                    const res = await fetch(`${BASE_URL}/api/users/all`);
-                    if (!res.ok) throw new Error('Gagal ambil semua data');
-
-                    this.allUsers = await res.json();
-
-                    this.$nextTick(() => this.renderChart());
-
-                } catch (err) {
-                    console.error(err);
-                }
-            },
-
-            // ===== PAGINATION =====
-
-            changePage(p) {
-                if (p < 1 || p > this.totalPages) return;
-                this.page = p;
-                this.getUsers();
-            },
-
-            // ===== SEARCH =====
-
-            onSearch() {
-                // Debounce: tunggu 400ms setelah berhenti mengetik
-                clearTimeout(this.searchTimer);
-                this.searchTimer = setTimeout(() => {
-                    this.page = 1;
-                    this.getUsers();
-                }, 400);
-            },
-
-            // ===== CRUD =====
-
-            openEdit(user) {
-                this.editId = user.id;
-                this.form = { name: user.name, email: user.email, phone: user.phone };
-                this.message = '';
-                this.editModal.show();
-            },
-
-            async saveUser() {
-                try {
-                    let url    = `${BASE_URL}/api/users`;
-                    let method = 'POST';
-
-                    if (this.editId) {
-                        url    = `${BASE_URL}/api/users/update/${this.editId}`;
-                        method = 'POST';
-                    }
-
-                    const res = await fetch(url, {
-                        method,
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.form)
-                    });
-
-                    if (!res.ok) throw new Error('Request gagal');
-
-                    const result  = await res.json();
-                    this.message  = result.message;
-                    this.editId   = null;
-                    this.form     = { name: '', email: '', phone: '', password: '' };
-
-                    // Jika edit, tutup modal setelah berhasil
-                    if (this.editModal && this.isLoggedIn) {
-                        setTimeout(() => this.editModal.hide(), 800);
-                    }
-
-                    this.getUsers();
-                    this.getAllUsers();
-
-                } catch (err) {
-                    console.error(err);
-                }
-            },
-
-            async deleteUser(id) {
-                if (!confirm('Yakin ingin menghapus user ini?')) return;
-
-                try {
-                    const res = await fetch(`${BASE_URL}/api/users/${id}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (!res.ok) throw new Error('Gagal delete');
-
-                    this.getUsers();
-                    this.getAllUsers();
-
-                } catch (err) {
-                    console.error(err);
-                }
-            },
-
-            // ===== CHART =====
-
-            renderChart() {
-                if (this.chart) this.chart.destroy();
-
-                const domainCount = {};
-                this.allUsers.forEach(user => {
-                    const domain = user.email.split('@')[1] || 'unknown';
-                    domainCount[domain] = (domainCount[domain] || 0) + 1;
-                });
-
-                const ctx = document.getElementById('userChart');
-                if (!ctx) return;
-
-                this.chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(domainCount),
-                        datasets: [{
-                            label: 'Jumlah User',
-                            data: Object.values(domainCount),
-                            backgroundColor: '#0d6efd',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                    }
-                });
-            },
-
-            // ===== EXPORT DATA =====
-
-            exportData() {
-                if (!this.exportType || this.allUsers.length === 0) return;
-
-                const data = this.allUsers;
-
-                if (this.exportType === 'json') {
-                    this.downloadFile(
-                        JSON.stringify(data, null, 2),
-                        'users.json',
-                        'application/json'
-                    );
-
-                } else if (this.exportType === 'csv') {
-                    const header = 'id,name,email,phone';
-                    const rows   = data.map(u => `${u.id},"${u.name}","${u.email}","${u.phone}"`);
-                    this.downloadFile(
-                        [header, ...rows].join('\n'),
-                        'users.csv',
-                        'text/csv'
-                    );
-
-                } else if (this.exportType === 'txt') {
-                    const rows = data.map(u => `${u.id} | ${u.name} | ${u.email} | ${u.phone}`);
-                    this.downloadFile(
-                        rows.join('\n'),
-                        'users.txt',
-                        'text/plain'
-                    );
-                }
-
-                // Reset dropdown setelah download
-                this.exportType = '';
-            },
-
-            downloadFile(content, filename, mimeType) {
-                const blob = new Blob([content], { type: mimeType });
-                const url  = URL.createObjectURL(blob);
-                const a    = document.createElement('a');
-                a.href     = url;
-                a.download = filename;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-        },
-
-        mounted() {
-            // Cek token saat pertama kali load
-            const token = localStorage.getItem('token');
-            if (token) {
-                this.isLoggedIn = true;
-                this.$nextTick(() => {
-                    this.editModal = new bootstrap.Modal(document.getElementById('editModal'));
-                    this.getUsers();
-                    this.getAllUsers();
-                });
-            }
-        }
-
-    }).mount('#app');
-</script>
-
+<script src="js/app.js"></script>
 </body>
 </html>
